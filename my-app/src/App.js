@@ -7,15 +7,15 @@ const UserCard = styled.div `
   background-color: white;
   border-radius: 5%;
   margin: 5vh 0;
-  height: 549px;
-  width: 500px;
+  height: 700px;
+  width: 550px;
 `;
 
 const FollowerCard = styled.div `
   background-color: white;
   border-radius: 5%;
   margin: 5vh 0;
-  height: 425px;
+  height: 500px;
   width: 485px;
 `;
 
@@ -42,7 +42,8 @@ class App extends React.Component {
     super();
     this.state = {
       user: [],
-      followers: []
+      followers: [],
+      username: ""
     }
   }
 
@@ -70,10 +71,48 @@ class App extends React.Component {
       })
   }
 
+  handleChange = event => {
+    this.setState({
+      username: event.target.value
+    });
+  };
+
+  fetchUser = event => {
+    event.preventDefault();
+
+    axios.get(`https://api.github.com/users/${this.state.username}`)
+      .then(res => {
+        this.setState({ 
+          user: res.data 
+        });
+      })
+      .catch( err => {
+        console.log(`Failed to retrieve data`, err)
+      })
+
+    axios.get(`https://api.github.com/users/${this.state.username}/followers`)
+      .then(res => {
+        this.setState({
+          followers: res.data
+        })
+      })
+      .catch(err => {
+        console.log(`Failed to retrieve follower data`, err)
+      })
+  };
+
   render() {
     return (
       <div className="App">
         <header className="App-header">
+
+          <h1>GITHUB USER AND FOLLOWERS</h1>
+          <input
+            type="text"
+            value={this.state.username}
+            onChange={this.handleChange}
+          />
+          <button onClick={this.fetchUser}>Fetch User</button>
 
           <UserCard>
             <ProfilePic src={this.state.user.avatar_url} />
